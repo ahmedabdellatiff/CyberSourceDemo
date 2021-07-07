@@ -1,0 +1,83 @@
+﻿@page
+@model IndexModel
+@using WebApplication5
+
+@{
+    ViewData["Title"] = "Home page";
+    string culture = "ar-xn";
+    string referenceID = "2030333";
+    string amount = "1000";
+    string uuid = Guid.NewGuid().ToString();
+    string ipAddress = "10.20.205.144";
+
+    string signedDate = DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+    Dictionary<string, string> formParameters = new Dictionary<string, string>();
+    formParameters.Add("access_key", "b819a92692483be1a098d92893e7335a");
+    formParameters.Add("profile_id", "AF6438DD-F6BD-4F88-A8D1-8A2B19B32EE9");
+
+    formParameters.Add("merchant_defined_data1", "Bill Payments");
+    //TODO change it depending on what is the accepted card, also note that currently the nic services have three options vs two options by cybersource (local/international vs mada/mada+local/international
+    formParameters.Add("merchant_defined_data6", "Y");
+    formParameters.Add("transaction_type", "sale");
+
+    //fraud
+    formParameters.Add("device_fingerprint_id", uuid);
+    formParameters.Add("customer_ip_address", @ipAddress);
+
+    //settings
+    formParameters.Add("locale", culture);
+    formParameters.Add("currency", "SAR");
+
+    //transaction details
+    formParameters.Add("reference_number", referenceID);
+    formParameters.Add("amount", @amount);
+
+    formParameters.Add("bill_to_address_country", "US");
+    formParameters.Add("bill_to_address_line1", "1295 Charleston Rd");
+    formParameters.Add("bill_to_address_city", "Mountain View");
+    formParameters.Add("bill_to_address_postal_code", "94043");
+    formParameters.Add("bill_to_address_state", "CA");
+
+    //security
+    formParameters.Add("transaction_uuid", uuid);
+    formParameters.Add("unsigned_field_names", "");
+    formParameters.Add("signed_date_time", signedDate);
+    formParameters.Add("signed_field_names", "access_key,profile_id,transaction_uuid,signed_field_names,unsigned_field_names,signed_date_time,locale,transaction_type,reference_number,amount,bill_to_address_country,bill_to_address_line1,bill_to_address_city,bill_to_address_postal_code,bill_to_address_state,currency,device_fingerprint_id,customer_ip_address,merchant_defined_data1,merchant_defined_data6");
+    var signature = Security.sign(formParameters);
+    formParameters.Add("signature", signature);
+
+}
+
+<form action="https://testsecureacceptance.cybersource.com/pay" method="post">
+    @foreach (var item in formParameters)
+    {
+        <input type="hidden" id="@item.Key" name="@item.Key" value="@item.Value" />
+
+    }
+
+    @*<input type="hidden" id="access_key" name="access_key" value="b819a92692483be1a098d92893e7335a" />
+        <input type="hidden" id="profile_id" name="profile_id" value="AF6438DD-F6BD-4F88-A8D1-8A2B19B32EE9" />
+        <input type="hidden" id="merchant_defined_data1" name="merchant_defined_data1" value="Bill Payments" />
+        <input type="hidden" id="merchant_defined_data6" name="merchant_defined_data6" value="Y" />
+        <input type="hidden" id="transaction_type" name="transaction_type" value="sale" />
+        <input type="hidden" id="device_fingerprint_id" name="device_fingerprint_id" value="@uuid" />
+        <input type="hidden" id="customer_ip_address" name="customer_ip_address" value="@referenceID" />
+        <input type="hidden" id="locale" name="locale" value="@culture" />
+        <input type="hidden" id="currency" name="currency" value="SAR" />
+        <input type="hidden" id="reference_number" name="reference_number" value="@referenceID" />
+        <input type="hidden" id="amount" name="amount" value="@amount" />
+        <input type="hidden" id="bill_to_address_country" name="bill_to_address_country" value="US" />
+        <input type="hidden" id="bill_to_address_line1" name="bill_to_address_line1" value="1295 Charleston Rd" />
+        <input type="hidden" id="bill_to_address_city" name="bill_to_address_city" value="Mountain View" />
+        <input type="hidden" id="bill_to_address_postal_code" name="bill_to_address_postal_code" value="94043" />
+        <input type="hidden" id="bill_to_address_state" name="bill_to_address_state" value="CA" />
+
+        <input type="hidden" id="transaction_uuid" name="transaction_uuid" value="@uuid" />
+        <input type="hidden" id="unsigned_field_names" name="unsigned_field_names" value="" />
+        <input type="hidden" id="signed_date_time" name="signed_date_time" value="@signedDate" />
+        <input type="hidden" id="signed_field_names" name="signed_field_names" value="access_key,profile_id,transaction_uuid,signed_field_names,unsigned_field_names,signed_date_time,locale,transaction_type,reference_number,amount,bill_to_address_country,bill_to_address_line1,bill_to_address_city,bill_to_address_postal_code,bill_to_address_state,currency,device_fingerprint_id,customer_ip_address,merchant_defined_data1,merchant_defined_data6" />
+        <input type="hidden" id="signature" name="signature" value="@signature" />*@
+
+    <input type="submit" value="Submit" />
+</form>
